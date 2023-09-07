@@ -1,18 +1,20 @@
 const router = require("express").Router();
 const Beer = require("../models/Beer.model");
 
-
 router.get("/", async (req, res) => {
   const allBeers = await Beer.find();
   res.json(allBeers);
 });
 
+router.get("/random", async (req, res) => {
+  const randomBeers = await Beer.aggregate([{ $sample: { size: 1 } }]);
+  res.json(randomBeers);
+});
 
 router.get("/:beerId", async (req, res) => {
   const oneBeer = await Beer.findById(req.params.beerId);
   res.json(oneBeer);
 });
-
 
 router.post("/", async (req, res) => {
   try {
@@ -48,21 +50,19 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 router.put("/:beerId", async (req, res) => {
   const updatedBeer = await Beer.findByIdAndUpdate(
     req.params.beerId,
     req.body,
     { new: true }
   );
-  res.json(updatedBeer)
-  res.status(202).json({message: "Beer successfully modified"})
+  res.json(updatedBeer);
+  res.status(202).json({ message: "Beer successfully modified" });
 });
 
-
 router.delete("/:beerId", async (req, res) => {
-  await Beer.findByIdAndDelete(req.params.beerId)
-  res.status(202).json({message: "Beer successfully deleted"})
-})
+  await Beer.findByIdAndDelete(req.params.beerId);
+  res.status(202).json({ message: "Beer successfully deleted" });
+});
 
 module.exports = router;
